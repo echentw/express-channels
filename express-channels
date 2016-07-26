@@ -1,0 +1,40 @@
+#!/bin/bash
+
+dir_name="$1"
+
+function generate-channels {
+  wget http://github.com/echentw/channels/archive/master.zip
+  unzip master.zip
+  rm master.zip
+  mv channels-master ${dir_name}
+}
+
+if [ -f ${dir_name} ] || [ -d ${dir_name} ]; then
+  echo "${dir_name} already exists in this directory"
+else
+
+  master_hash=$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 32 | head -n 1)
+  zip_hash=$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 32 | head -n 1)
+
+  master_name='./master.zip'
+  zip_name='./channels-master'
+
+  if [ -f ${master_name} ] || [ -d ${master_name} ]; then
+    mv ${master_name} "${master_name}.${master_hash}"
+  fi
+
+  if [ -f ${zip_name} ] || [ -d ${zip_name} ]; then
+    mv ${zip_name} "${zip_name}.${zip_hash}"
+  fi
+
+  generate-channels
+
+  if [ -f "${master_name}.${master_hash}" ] || [ -d "${master_name}.${master_hash}" ]; then
+    mv "${master_name}.${master_hash}" ${master_name}
+  fi
+
+  if [ -f "${zip_name}.${zip_hash}" ] || [ -d "${zip_name}.${zip_hash}" ]; then
+    mv "${zip_name}.${zip_hash}" ${zip_name}
+  fi
+
+fi
